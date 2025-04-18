@@ -17,7 +17,7 @@ A Telegram bot that can generate and decode QR codes. The bot supports both regu
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/telegram-qr-bot.git
+git clone https://github.com/BuT9l3b/SimpleQR_Bot.git
 cd telegram-qr-bot
 ```
 

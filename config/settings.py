@@ -6,6 +6,8 @@ load_dotenv('config.env')
 
 # Bot settings
 BOT_TOKEN = os.getenv('BOT_TOKEN')
+BOT_NAME = os.getenv('BOT_NAME')
+STORAGE_CHANNEL = os.getenv('STORAGE_CHANNEL')
 
 # QR code settings
 QR_VERSION = 1

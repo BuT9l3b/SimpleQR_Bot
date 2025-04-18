@@ -1,8 +1,8 @@
 import logging
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
-from aiogram.types import InlineQuery, InlineQueryResultPhoto, BufferedInputFile
-from config.settings import BOT_TOKEN
+from aiogram.types import InlineQuery, InlineQueryResultCachedPhoto, BufferedInputFile, InlineQueryResultArticle, InputTextMessageContent
+from config.settings import BOT_TOKEN, BOT_NAME, STORAGE_CHANNEL
 from app.qr.generator import QRCodeGenerator
 from app.qr.decoder import QRCodeDecoder
 import logging
@@ -14,6 +14,16 @@ logger = logging.getLogger(__name__)
 # Initialize bot and dispatcher
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
+
+async def fetch_qr(bot: Bot, qr_image_bytes: bytes, storage_chat_id: str) -> str:
+    """Upload QR code to a storage channel and return its file_id."""
+    qr_input_file = BufferedInputFile(qr_image_bytes, filename="qr_code.png")
+    sent_message = await bot.send_photo(
+        chat_id=storage_chat_id,  # ID канала или чата для хранения
+        photo=qr_input_file
+    )
+    return sent_message.photo[-1].file_id
 
 
 @dp.message(Command("start"))
@@ -102,23 +112,40 @@ async def handle_photo(message: types.Message):
 async def handle_inline_query(inline_query: InlineQuery):
     """Handle inline queries for QR code generation"""
     if not inline_query.query:
+        result = InlineQueryResultArticle(
+            id="1",
+            title="Generate QR Code",
+            input_message_content=InputTextMessageContent(
+                message_text="🔹 Enter text or link to generate a QR code!\n"
+                f"🔹 Example: {BOT_NAME} Hello, world!",
+                parse_mode="HTML"
+            ),
+            description="Type any text to create a QR code",
+            thumb_url="https://www.svgrepo.com/show/334191/qr-scan.svg"
+        )
+        await inline_query.answer([result])
         return
     
     try:
-        # Generate QR code
         qr_generator = QRCodeGenerator()
         qr_image = await qr_generator.generate_qr(inline_query.query)
         
-        # Create inline result
-        result = InlineQueryResultPhoto(
+        # Upload QR code to a storage channel and get file_id
+        file_id = await fetch_qr(
+            bot,
+            qr_image.getvalue(),
+            storage_chat_id=STORAGE_CHANNEL  # Replace with actual ID
+        )
+        
+        # Create inline result for inline mode
+        result = InlineQueryResultCachedPhoto(
             id="1",
-            photo_url="data:image/png;base64," + qr_image.getvalue().hex(),
-            thumb_url="data:image/png;base64," + qr_image.getvalue().hex(),
-            title="Generate QR Code",
+            photo_file_id=file_id,
+            title="QR Code",
             description=f"QR Code for: {inline_query.query}"
         )
         
-        await inline_query.answer([result])
+        await inline_query.answer([result], cache_time=65536)
         
     except Exception as e:
         logger.error(f"Error handling inline query: {e}")
