@@ -1,18 +1,21 @@
 import cv2
 import numpy as np
 from PIL import Image
-from io import BytesIO
-from typing import Optional, Tuple
+from typing import Optional, Tuple, BinaryIO
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class QRCodeDecoder:
     @staticmethod
-    async def decode_qr(image_data: BytesIO) -> Tuple[bool, Optional[str]]:
+    async def decode_qr(image_data: BinaryIO) -> Tuple[bool, Optional[str]]:
         """
         Decode a QR code from an image.
         
         Args:
-            image_data (BytesIO): The image data containing the QR code
+            image_data (BinaryIO): The image data containing the QR code
             
         Returns:
             Tuple[bool, Optional[str]]: A tuple containing:
@@ -28,17 +31,13 @@ class QRCodeDecoder:
             if len(image_np.shape) == 3:
                 image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
             
-            # Initialize QR code detector
-            qr_detector = cv2.QRCodeDetector()
+            qr_detector = cv2.QRCodeDetector()  # Initialize QR code detector
             
-            # Detect and decode QR code
-            retval, decoded_info, points, straight_qrcode = qr_detector.detectAndDecodeMulti(image_np)
+            data, bbox, _ = qr_detector.detectAndDecode(image_np)  # Detect and decode QR code
             
-            if not retval or not decoded_info:
-                return False, "No QR code found in the image"
-            
-            # Return the first decoded QR code
-            return True, decoded_info[0]
+            if not data: return False, "No QR code found in the image"
+            return True, data  # Return the decoded QR code
             
         except Exception as e:
+            logger.error(f"Error decoding QR code: {e}")
             return False, f"Error decoding QR code: {str(e)}"

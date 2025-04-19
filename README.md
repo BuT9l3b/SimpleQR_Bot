@@ -1,4 +1,4 @@
-# Telegram QR Code Bot
+# SimpleQR Telegram Bot
 
 A Telegram bot that can generate and decode QR codes. The bot supports both regular chat mode and inline mode.
 
@@ -7,6 +7,9 @@ A Telegram bot that can generate and decode QR codes. The bot supports both regu
 - Generate QR codes from text or links
 - Decode QR codes from images
 - Inline mode support
+- Logging system for error tracking
+- Configuration via environment variables
+
 
 ## Requirements
 
@@ -18,7 +21,7 @@ A Telegram bot that can generate and decode QR codes. The bot supports both regu
 1. Clone the repository:
 ```bash
 git clone https://github.com/BuT9l3b/SimpleQR_Bot.git
-cd telegram-qr-bot
+cd SimpleQR_Bot
 ```
 
 2. Create and activate a virtual environment:
@@ -36,6 +39,7 @@ pip install -r requirements.txt
 ```
 BOT_TOKEN=your_bot_token_here
 BOT_USERNAME=your_bot_username_here
+STORAGE_CHANNEL=your_storage_channel_id_here
 ```
 
 ## Usage
