@@ -115,7 +115,7 @@ async def handle_inline_query(inline_query: InlineQuery):
             description="Type any text to create a QR code",
             thumb_url="https://github.com/BuT9l3b/SimpleQR_Bot/blob/master/image/inline_mode_icon.jpg?raw=true"
         )
-        await inline_query.answer([result], cache_time=1)
+        await inline_query.answer([result], cache_time=65536)
         return
     
     try:
